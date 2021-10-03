@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Entwicklung der Lohnsteuer in Österreich (2005 - 2025)</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    
+    <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+</head>
+<body>
+    
+    <h1>Entwicklung der Lohnsteuer in Österreich (2005 - 2025)</h1>
+
+    Alle Angaben pro Jahresgehalt ohne SV-Beitrag (Bemessungsgrundlage LSt.).
+
+    <h2>Lohnsteuer Berechnung</h2>
+
+    <a href="https://www.arbeit-wirtschaft.at/vergangene-steuerreformen-auf-einen-blick/3/">Quelle</a>
+
+    <!--
+        <br><br>
+    <button id="newTaxBuckets" type="button" onclick="createNewTaxBuckets()">Neue Steuerreform</button>
+    -->
+
+    <div id="tax_info"></div>
+
+    <h3>Inflationsentwicklung</h3>
+    <a href="https://www.inflation.eu/de/inflationsraten/osterreich/historische-inflation/vpi-inflation-osterreich.aspx">Quelle</a>
+    <div id="chart_inflation" style="width:800px;height:400px;"></div>
+
+    <h2>Konfiguration Charts</h2>
+    Minimales Jahresgehalt: <input id="minBeforeTaxes" type="text" value="0" maxlength="7"></input>
+    Maximales Jahresgehalt: <input id="maxBeforeTaxes" type="text" value="100000" maxlength="7"></input>
+    <button type="button" onclick="updateCharts()">Ändern</button>
+
+
+    <h2>Entlastung durch Anpassung der Lohnsteuertarife (nominell, ohne kalter Progression)</h2>
+
+    <h3>Steuerreformen</h3>
+    <div id="chart_reformen" style="width:800px;height:400px;"></div>
+
+    <h3>Steuerreformen (inflationsbereinigt in 2022 Euro)</h3>
+    <div id="chart_reformen_2022euro" style="width:800px;height:400px;"></div>
+
+    <h3>Entwicklung der Entlastungen</h3>
+    <div id="chart_changes" style="width:800px;height:400px;"></div>
+
+    <h2>Entlastung durch Anpassung der Lohnsteuertarife (real, mit kalter Progression)</h2>
+
+    <h3>Steuerreformen</h3>
+    <div id="chart_real_reformen" style="width:800px;height:400px;"></div>
+
+    <h3>Steuerreformen (inflationsbereinigt in 2022 Euro)</h3>
+    <div id="chart_real_reformen_2022euro" style="width:800px;height:400px;"></div>
+
+    <h3>Entwicklung der Entlastungen</h3>
+    <div id="chart_real_changes" style="width:800px;height:400px;"></div>
+
+
+    <h2>Entlastung durch Anpassung der Lohnsteuertarife (real, mit kalter Progression, relativ zum Einkommen)</h2>
+
+    <h3>Steuerreformen</h3>
+    <div id="chart_real_relative_reformen" style="width:800px;height:400px;"></div>
+
+    <h3>Steuerreformen (inflationsbereinigt in 2022 Euro)</h3>
+    <div id="chart_real_relative_reformen_2022euro" style="width:800px;height:400px;"></div>
+
+    <h3>Entwicklung der Entlastungen</h3>
+    <div id="chart_real_relative_changes" style="width:800px;height:400px;"></div>
+
+
+    <h2>Effektive Lohnsteuer</h2>
+
+    <h3>Entwicklung der effektiven Lohnsteuer (nominell, %)</h3>
+    <div id="chart_effective_tax_rate_per_year" style="width:800px;height:400px;"></div>
+
+    <h3>Entwicklung der effektiven Lohnsteuer (real, %)</h3>
+    <div id="chart_real_effective_tax_rate_per_year" style="width:800px;height:400px;"></div>
+
+    <h3>Effektive Lohnsteuer (real, %)</h3>
+    <div id="chart_real_effective_tax_rate_per_income" style="width:800px;height:400px;"></div>
+    
+
+
+    <script src='main.js'></script>
+
+</body>
+</html>

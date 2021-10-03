@@ -1,0 +1,22 @@
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: small;
+}
+
+table, th, td {
+    border:1px solid black;
+    border-collapse:collapse;
+}
+
+th, td {
+  padding: 3px 5px 3px 5px;  
+  text-align: right;
+}
+
+input.r {
+    text-align: right;
+}
+
+a {
+    color: black
+}
