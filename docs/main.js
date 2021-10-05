@@ -49,6 +49,18 @@ const taxBuckets = [
             { upperLimit:    11000, taxRate:  0.0 },
             { upperLimit:    18000, taxRate: 20.0 },
             { upperLimit:    31000, taxRate: 30.0 },
+            { upperLimit:    60000, taxRate: 42.0 },
+            { upperLimit:    90000, taxRate: 48.0 },
+            { upperLimit:  1000000, taxRate: 50.0 },
+            { upperLimit: Infinity, taxRate: 55.0 }
+        ]
+    },
+    {
+        year: 2023,
+        buckets: [
+            { upperLimit:    11000, taxRate:  0.0 },
+            { upperLimit:    18000, taxRate: 20.0 },
+            { upperLimit:    31000, taxRate: 30.0 },
             { upperLimit:    60000, taxRate: 40.0 },
             { upperLimit:    90000, taxRate: 48.0 },
             { upperLimit:  1000000, taxRate: 50.0 },
@@ -148,9 +160,9 @@ function appendBuckets(sb, taxBuckets) {
     for (let j = 0; j < buckets.length; j++) {
         let bucket = buckets[j];
         sb += "<tr>";
-        sb += "<td>"+bucket.lowerLimit+" €</td>";
+        sb += "<td>" + Math.round(bucket.lowerLimit) +" €</td>";
         if (bucket.upperLimit != Infinity) {
-            sb += "<td>" + bucket.upperLimit + " €</td>";
+            sb += "<td>" + Math.round(bucket.upperLimit) + " €</td>";
         } else {
             sb += "<td>-</td>";
         }            
@@ -206,17 +218,17 @@ function showTaxInfo() {
 
 function createNewTaxBuckets() {
     document.getElementById("newTaxBuckets").style.display = "none";
+    const eurusd = 1.16;
     taxBuckets.push(
         {
             // TODO editing does not yet work
             //custom: true,
             year: 2024,
             buckets: [
-                { upperLimit:    11000, taxRate:  0.0 },
-                { upperLimit:    18000, taxRate: 20.0 },
-                { upperLimit:    31000, taxRate: 30.0 },
+                { upperLimit:    16000, taxRate:  0.0 },
+                { upperLimit:    31000, taxRate: 35.0 },
                 { upperLimit:    60000, taxRate: 40.0 },
-                { upperLimit:   100000, taxRate: 45.0 },
+                { upperLimit:    90000, taxRate: 48.0 },
                 { upperLimit:   200000, taxRate: 50.0 },
                 { upperLimit:   400000, taxRate: 53.0 },
                 { upperLimit:   800000, taxRate: 56.0 },
@@ -315,10 +327,9 @@ function calcTaxes(year, yearBase, beforeTaxesAtBase, showInflation) {
 function plotChangesOverTime(targetId, minBeforeTaxes, maxBeforeTaxes, yearFrom, yearTo, yearBase, showInflation, relativeToIncome) {
     const data = [];
 
-    minBeforeTaxes = Math.max(20000, minBeforeTaxes)
-    const step = (maxBeforeTaxes - minBeforeTaxes) / 8;
-
-    for (let beforeTaxes = minBeforeTaxes; beforeTaxes <= maxBeforeTaxes; beforeTaxes += step) {
+    minBeforeTaxes = Math.max(10000, minBeforeTaxes)
+    for (let i = 0; i <= 9; i++) {
+        let beforeTaxes = minBeforeTaxes + (maxBeforeTaxes - minBeforeTaxes) * i / 9;
         const x = [];
         const y = [];
         const totalTaxesForStart = calcTaxes(yearFrom, yearBase, beforeTaxes, showInflation);
@@ -331,7 +342,7 @@ function plotChangesOverTime(targetId, minBeforeTaxes, maxBeforeTaxes, yearFrom,
             
         }
         data.push({
-            name: beforeTaxes,
+            name: Math.round(beforeTaxes),
             x: x,
             y: y
         });
@@ -344,16 +355,16 @@ function plotChangesOverTime(targetId, minBeforeTaxes, maxBeforeTaxes, yearFrom,
         {
             margin: { t: 20 },
             xaxis: { title: 'Jahr' },
-            yaxis: { title: 'Entlastung' }
+            yaxis: { title: relativeToIncome ? 'Entlastung (%)' : 'Entlastung' }
         }
     );
 }
 
 function plotEffictiveTaxRatePerIncome(targetId, minBeforeTaxes, maxBeforeTaxes, yearFrom, yearTo, yearBase, showInflation) {
     const data = [];
-    minBeforeTaxes = Math.max(20000, minBeforeTaxes)
-    const step = (maxBeforeTaxes - minBeforeTaxes) / 8;
-    for (let beforeTaxes = minBeforeTaxes; beforeTaxes <= maxBeforeTaxes; beforeTaxes += step) {
+    minBeforeTaxes = Math.max(10000, minBeforeTaxes)
+    for (let i = 0; i <= 9; i++) {
+        let beforeTaxes = minBeforeTaxes + (maxBeforeTaxes - minBeforeTaxes) * i / 9;
         const x = [];
         const y = [];
         for (let year = yearFrom; year <= yearTo; year++) {
@@ -412,7 +423,7 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("Steuerreform 2010", minBeforeTaxes, maxBeforeTaxes, 2009, 2010, false, false),
             createSeriesChangesPerIncome("Steuerreform 2016", minBeforeTaxes, maxBeforeTaxes, 2015, 2016, false, false),
-            createSeriesChangesPerIncome("Steuerreform 2020+2022", minBeforeTaxes, maxBeforeTaxes, 2019, 2022, false, false)
+            createSeriesChangesPerIncome("Steuerreform 2020+22+23", minBeforeTaxes, maxBeforeTaxes, 2019, 2023, false, false)
         ], 
         {
             margin: { t: 20 },
@@ -426,7 +437,7 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("Steuerreform 2010", minBeforeTaxes, maxBeforeTaxes, 2009, 2010, false, true, 2022),
             createSeriesChangesPerIncome("Steuerreform 2016", minBeforeTaxes, maxBeforeTaxes, 2015, 2016, false, true, 2022),
-            createSeriesChangesPerIncome("Steuerreform 2020+2022", minBeforeTaxes, maxBeforeTaxes, 2019, 2022, false, true, 2022)
+            createSeriesChangesPerIncome("Steuerreform 2020+22+23", minBeforeTaxes, maxBeforeTaxes, 2019, 2023, false, true, 2022)
         ], 
         {
             margin: { t: 20 },
@@ -445,7 +456,7 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("2010 vs 2005", minBeforeTaxes, maxBeforeTaxes, 2005, 2010, true, false),
             createSeriesChangesPerIncome("2016 vs 2010", minBeforeTaxes, maxBeforeTaxes, 2010, 2016, true, false),
-            createSeriesChangesPerIncome("2022 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2022, true, false)
+            createSeriesChangesPerIncome("2023 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2023, true, false)
         ], 
         {
             margin: { t: 20 },
@@ -459,9 +470,9 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("2010 vs 2005", minBeforeTaxes, maxBeforeTaxes, 2005, 2010, true, true, 2022),
             createSeriesChangesPerIncome("2016 vs 2010", minBeforeTaxes, maxBeforeTaxes, 2010, 2016, true, true, 2022),
-            createSeriesChangesPerIncome("2022 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2022, true, true, 2022),
+            createSeriesChangesPerIncome("2023 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2023, true, true, 2022),
             createSeriesChangesPerIncome("2025 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2025, true, true, 2022)
-        ], 
+        ],
         {
             margin: { t: 20 },
             xaxis: { title: 'Bemessungsgrundlage' },
@@ -479,7 +490,7 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("2010 vs 2005", minBeforeTaxes, maxBeforeTaxes, 2005, 2010, true, false, -1, true),
             createSeriesChangesPerIncome("2016 vs 2010", minBeforeTaxes, maxBeforeTaxes, 2010, 2016, true, false, -1, true),
-            createSeriesChangesPerIncome("2022 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2022, true, false, -1, true)
+            createSeriesChangesPerIncome("2023 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2023, true, false, -1, true)
         ], 
         {
             margin: { t: 20 },
@@ -493,8 +504,21 @@ function updateCharts() {
         [
             createSeriesChangesPerIncome("2010 vs 2005", minBeforeTaxes, maxBeforeTaxes, 2005, 2010, true, true, 2022, true),
             createSeriesChangesPerIncome("2016 vs 2010", minBeforeTaxes, maxBeforeTaxes, 2010, 2016, true, true, 2022, true),
-            createSeriesChangesPerIncome("2022 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2022, true, true, 2022, true),
-            createSeriesChangesPerIncome("2025 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2025, true, true, 2022, true)
+            createSeriesChangesPerIncome("2023 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2023, true, true, 2022, true)
+        ], 
+        {
+            margin: { t: 20 },
+            xaxis: { title: 'Bemessungsgrundlage' },
+            yaxis: { title: 'Entlastung (%)' }
+        } 
+    );
+
+    Plotly.newPlot(
+        document.getElementById('chart_real_relative_reformen_akk_2022euro'), 
+        [
+            createSeriesChangesPerIncome("2023 vs 2016", minBeforeTaxes, maxBeforeTaxes, 2016, 2023, true, true, 2022, true),
+            createSeriesChangesPerIncome("2023 vs 2010", minBeforeTaxes, maxBeforeTaxes, 2010, 2023, true, true, 2022, true),
+            createSeriesChangesPerIncome("2023 vs 2005", minBeforeTaxes, maxBeforeTaxes, 2005, 2023, true, true, 2022, true)
         ], 
         {
             margin: { t: 20 },
@@ -508,14 +532,14 @@ function updateCharts() {
 
     // effective tax rate
 
-    plotEffictiveTaxRatePerIncome( 'chart_effective_tax_rate_per_year', minBeforeTaxes, maxBeforeTaxes, 2005, 2025, 2022, false);
+    plotEffictiveTaxRatePerIncome('chart_effective_tax_rate_per_year', minBeforeTaxes, maxBeforeTaxes, 2005, 2025, 2022, false);
     plotEffictiveTaxRatePerIncome('chart_real_effective_tax_rate_per_year', minBeforeTaxes, maxBeforeTaxes, 2005, 2025, 2022, true);
         
     Plotly.newPlot(
         document.getElementById('chart_real_effective_tax_rate_per_income'), 
         [
             calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2025, 2022),
-            calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2022, 2022),
+            calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2023, 2022),
             calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2019, 2022),
             calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2016, 2022),
             calcTaxRatePerIncome(minBeforeTaxes, maxBeforeTaxes, 2015, 2022),
