@@ -266,34 +266,52 @@ function plotInflation(yearFrom, yearTo) {
     );
 }
 
-function createSeriesChangesPerIncome(title, minBeforeTaxes, maxBeforeTaxes, yearFrom, yearTo, showInflationBetweenFromAndTo, adjustToYear, yearBase, relativeToIncome) {
-    let bucketsFrom = getTaxBuckets(yearFrom);
-    const bucketsTo = getTaxBuckets(yearTo);   
-    const inflationFromTo = getTotalInflation(yearFrom, yearTo);
-    const inflationToBase = getTotalInflation(yearTo, yearBase);
+function createSeriesChangesPerIncome(title, minBeforeTaxes, maxBeforeTaxes, yearStart, yearEnd, showInflationBetweenStartAndEnd, adjustToBaseYear, yearBase, relativeToIncome) {
+    const bucketsStart = getTaxBuckets(yearStart);
+    const bucketsEnd = getTaxBuckets(yearEnd);   
+    const inflationEndToBase = getTotalInflation(yearEnd, yearBase);
+    const inflationStartToEnd = getTotalInflation(yearStart, yearEnd);
     const x = [];
     const y = [];
     for (let beforeTaxes = minBeforeTaxes; beforeTaxes <= maxBeforeTaxes; beforeTaxes += 1000) {
-        let beforeTaxesFrom = beforeTaxes;
-        let beforeTaxesTo = beforeTaxes;
-        if (showInflationBetweenFromAndTo) {
-            beforeTaxesFrom = beforeTaxesFrom / inflationFromTo;
+        
+        // start with nominal income being the same at start and end 
+        let beforeTaxesStart = beforeTaxes;
+        let beforeTaxesEnd = beforeTaxes;
+
+        // first adjust prices from a base year (e.g. today in 2022) to the end of the period (e.g. 2016).
+        // e.g. 40000 euro today is equivalent to 36000 euro in 2016
+        if (adjustToBaseYear) {
+            beforeTaxesStart /= inflationEndToBase;
+            beforeTaxesEnd /= inflationEndToBase;
         } 
-        if (adjustToYear) {
-            beforeTaxesFrom = beforeTaxesFrom / inflationToBase;
-            beforeTaxesTo = beforeTaxesTo / inflationToBase;
+
+        // then additionaly adjust prices from the end of the period (e.g. 2016) to the start of the period (e.g. 2010)
+        // e.g. 36000 in 2016 is equivalent to 32000 euro in 2010
+        if (showInflationBetweenStartAndEnd) {
+            beforeTaxesStart /= inflationStartToEnd;
         }
-        let totalTaxesTo = calculateTotalTaxes(bucketsTo, beforeTaxesTo);
-        let totalTaxesFrom = calculateTotalTaxes(bucketsFrom, beforeTaxesFrom);
-        if (showInflationBetweenFromAndTo) {
-            totalTaxesFrom = totalTaxesFrom * inflationFromTo;
+
+        // calculate taxes at start (e.g. 2010)
+        let totalTaxesStart = calculateTotalTaxes(bucketsStart, beforeTaxesStart);
+        
+        // calculate taxes at end (e.g. 2016)
+        let totalTaxesEnd = calculateTotalTaxes(bucketsEnd, beforeTaxesEnd);
+
+        // e.g. bring back taxes from 2010 to 2016
+        if (showInflationBetweenStartAndEnd) {
+            totalTaxesStart *= inflationStartToEnd;
         }
-        if (adjustToYear) {
-            totalTaxesTo = totalTaxesTo * inflationToBase;
-            totalTaxesFrom = totalTaxesFrom * inflationToBase;
+        // e.g. bring back taxes to today (2022)
+        if (adjustToBaseYear) {
+            totalTaxesStart *= inflationEndToBase;
+            totalTaxesEnd *= inflationEndToBase;
         }
+        
+        // x axis will show income in todays terms (if base=today)
         x.push(beforeTaxes);
-        const changeAbs = totalTaxesFrom - totalTaxesTo;
+        // y axis will show income change in todays terms
+        const changeAbs = totalTaxesStart - totalTaxesEnd;
         if (relativeToIncome) {
             y.push(changeAbs * 100 / beforeTaxes);
         } else {
